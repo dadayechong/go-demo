@@ -46,21 +46,19 @@ func main() {
 	r := gin.Default()
 	//增 接口
 	r.POST("/user", func(c *gin.Context) {
-		var user Users
-		if err := c.ShouldBindJSON(&user); err != nil {
+		var userData Users
+		if err := c.ShouldBindJSON(&userData); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 		//
-		db.Create(&user)
+		db.Create(&userData)
 
 		c.JSON(http.StatusOK, gin.H{
-			"id":      user.ID,
-			"name":    user.Name,
-			"phone":   user.Phone,
-			"address": user.Address,
+			"code": 200,
+			"msg":  "创建成功",
+			"data": userData,
 		})
-
 	})
 
 	//删 接口
@@ -78,7 +76,10 @@ func main() {
 			return
 		}
 		db.Where("id = ?", id).Delete(&userData)
-		c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
+		c.JSON(http.StatusOK, gin.H{
+			"code": 200,
+			"msg":  "删除成功",
+		})
 	})
 
 	//改 接口
@@ -99,10 +100,9 @@ func main() {
 		})
 
 		c.JSON(http.StatusOK, gin.H{
-			"message": "修改成功",
-			"data": gin.H{
-				"data": userData,
-			},
+			"code": 200,
+			"msg":  "修改成功",
+			"data": userData,
 		})
 	})
 	//根据id、name、phone查询用户
@@ -132,10 +132,9 @@ func main() {
 		pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
 		db.Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&userData)
 		c.JSON(http.StatusOK, gin.H{
-			"message": "查询成功",
-			"data": gin.H{
-				"data": userData,
-			},
+			"code": 200,
+			"msg":  "查询成功",
+			"data": userData,
 		})
 	})
 
