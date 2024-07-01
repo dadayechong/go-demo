@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	//导入mysql驱动
 	"gorm.io/driver/mysql"
@@ -44,6 +45,18 @@ func main() {
 
 	//创建一个gin应用
 	r := gin.Default()
+
+	// CORS 中间件 解决跨域问题
+	r.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+		}
+		c.Next()
+	})
+
 	//增 接口
 	r.POST("/user", func(c *gin.Context) {
 		var userData Users
