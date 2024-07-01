@@ -141,13 +141,24 @@ func main() {
 	r.GET("/userlist", func(c *gin.Context) {
 		var userData []Users
 		//获取url的分页参数
-		pageNum, _ := strconv.Atoi(c.DefaultQuery("pageNum", "1"))
-		pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+		pageNum, _ := strconv.Atoi(c.Query("pageNum"))
+		pageSize, _ := strconv.Atoi(c.Query("pageSize"))
 		db.Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&userData)
 		c.JSON(http.StatusOK, gin.H{
 			"code": 200,
 			"msg":  "查询成功",
 			"data": userData,
+		})
+	})
+
+	//获取全部分页数据
+	r.GET("/userlistall", func(c *gin.Context) {
+		var userData []Users
+		db.Find(&userData)
+		c.JSON(http.StatusOK, gin.H{
+			"code": 200,
+			"msg":  "查询成功",
+			"data": len(userData),
 		})
 	})
 
