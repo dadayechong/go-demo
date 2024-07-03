@@ -97,26 +97,20 @@ func main() {
 
 	//改 接口
 	r.PUT("/user/:id", func(c *gin.Context) {
-		var userData []Users
+		var userData Users
 		id := c.Param("id")
-		//通过id查询该条数据在数据库中是否存在
-		db.Where("id = ?", id).Find(&userData)
-		if len(userData) == 0 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "修改失败，找不到该用户"})
+		// 使用ShouldBindJSON来解析JSON请求体到结构体中
+		if err := c.ShouldBindJSON(&userData); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		//修改
-		db.Model(&userData).Updates(Users{
-			Name:    c.PostForm("name"),
-			Phone:   c.PostForm("phone"),
-			Address: c.PostForm("address"),
-		})
+		// 更新数据库
+		if err := db.Model(&Users{}).Where("id = ?", id).Updates(userData).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "找不到用户"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "更新成功", "data": userData})
 
-		c.JSON(http.StatusOK, gin.H{
-			"code": 200,
-			"msg":  "修改成功",
-			"data": userData,
-		})
 	})
 	//根据id、name、phone查询用户
 	r.GET("/user", func(c *gin.Context) {
